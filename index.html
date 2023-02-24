@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form>
+        <label for="cname">Comany name*:</label><br>
+        <input type="text" id="cname" name="cname"><br>
+        <label for="rname">Role name*:</label><br>
+        <input type="text" id="rname" name="rname"><br/>
+        <label for="rtype">Role type*:</label><br/>
+        <select type="select" id="rtype" name="rtype">
+            <option value="backend">Backend</option>
+            <option value="frontend">Frontend</option>
+            <option value="fullstack">FullSstack</option>
+        </select><br>
+        <label for="topic">Topic:</label><br>
+        <input type="text" id="topic" name="topic"><br/>
+        <label for="question">Question:</label><br/>
+        <input type="text" id="question" name="question"><br/>
+        <label for="hmname">Hiring Manager:</label><br/>
+        <input type="text" id="hmname" name="hmname"><br/>
+        <label for="docid">Document ID*:</label><br/>
+        <input type="text" id="docid" name="docid"><br/>
+        <button type="button" id="create">Create</button>
+        <button type="button" id="get">Get</button>
+    </form>
+</body>
+<script>
+    const formObj = {}
+    const create = document.getElementById('create')
+    create.addEventListener('click',()=>{
+        ['cname','rname','rtype','topic','question','hmname','docid'].map((key) =>{
+            formObj[key] = document.getElementById(key).value
+        })
+        fetch('http://localhost:3000/create',{
+                method: 'POST',
+                body: JSON.stringify(formObj),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(res => 
+                res.text()
+            )
+            .then(data =>{
+                const formContainer = document.getElementsByTagName('body')[0]
+                formContainer.innerHTML = data
+            })
+    })
+    const getDocs = document.getElementById('get')
+    getDocs.addEventListener('click',()=>{
+        ['cname','rname','rtype','topic','question','hmname','docid'].map((key) =>{
+            formObj[key] = document.getElementById(key).value
+        })
+        if(formObj['docid']){
+            fetch(`http://localhost:3000/get/${formObj['docid']}`).then(res => 
+                    res.text()
+                )
+                .then(data =>{
+                    const formContainer = document.getElementsByTagName('body')[0]
+                    formContainer.innerHTML = data
+                })
+        } else {
+            const queryString = Object.keys(formObj)
+                .filter(key => formObj[key] !== '')
+                .map(key => `${key}=${formObj[key]}`).join('&')
+            fetch(`http://localhost:3000/search?${queryString}`).then(res => 
+                    res.text()
+                )
+                .then(data =>{
+                    const formContainer = document.getElementsByTagName('body')[0]
+                    formContainer.innerHTML = data
+                })
+        }
+    })
+</script>
+</html>
